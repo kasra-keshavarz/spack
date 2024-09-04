@@ -117,9 +117,11 @@ class NetcdfFortran(AutotoolsPackage):
         )
 
     def configure_args(self):
+        nc_config = which("nc-config")
         config_args = ["--enable-static"]
         config_args += self.enable_or_disable("shared")
         config_args += self.enable_or_disable("doxygen", variant="doc")
+        config_args.append("LDFLAGS={0}".format(nc_config("--libs", output=str).strip()))
 
         netcdf_c_spec = self.spec["netcdf-c"]
         if "+mpi" in netcdf_c_spec or "+parallel-netcdf" in netcdf_c_spec:
@@ -139,7 +141,6 @@ class NetcdfFortran(AutotoolsPackage):
                 config_args.append("ac_cv_func_MPI_File_open=yes")
 
         if "~shared" in netcdf_c_spec:
-            nc_config = which("nc-config")
             config_args.append("LIBS={0}".format(nc_config("--libs", output=str).strip()))
             if any(s in netcdf_c_spec for s in ["+mpi", "+parallel-netcdf", "^hdf5+mpi~shared"]):
                 config_args.append("CC=%s" % self.spec["mpi"].mpicc)
@@ -150,7 +151,7 @@ class NetcdfFortran(AutotoolsPackage):
         make("check", parallel=self.spec.satisfies("@4.5:"))
 
     @run_after("install")
-    def cray_module_filenames(self):
+    def ctrueray_module_filenames(self):
         # Cray compiler searches for module files with uppercase names by
         # default and with lowercase names when the '-ef' flag is specified.
         # To avoid warning messages when compiler user applications in both
