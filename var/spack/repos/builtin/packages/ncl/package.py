@@ -223,6 +223,7 @@ class Ncl(Package):
 
         if self.compiler.name == "gcc":
             fc_flags.append("-fno-range-check")
+            cc_flags.append("-fpermissive")
             c2f_flags.extend(["-lgfortran", "-lm"])
         elif self.compiler.name == "intel":
             fc_flags.append("-fp-model precise")
